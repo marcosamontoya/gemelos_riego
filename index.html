@@ -19,7 +19,7 @@ body{
 }
 
 .container{
-    max-width:1400px;
+    max-width:1500px;
     margin:auto;
 }
 
@@ -47,7 +47,7 @@ label{
     font-weight:bold;
 }
 
-input, select, textarea{
+input, select{
     width:100%;
     padding:10px;
     border-radius:8px;
@@ -73,12 +73,12 @@ button:hover{
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
+    margin-top:15px;
 }
 
 table th, table td{
     border:1px solid #ddd;
-    padding:10px;
+    padding:8px;
     text-align:center;
 }
 
@@ -107,10 +107,16 @@ table th{
     background:#fafafa;
 }
 
-@media(max-width:900px){
+.small{
+    font-size:13px;
+}
+
+@media(max-width:1000px){
+
     .grid{
         grid-template-columns:1fr;
     }
+
 }
 
 </style>
@@ -122,10 +128,13 @@ table th{
 <div class="container">
 
 <div class="card">
-    <h1>Gemelo Digital de Riego para Vid - Mendoza</h1>
-    <p>
-        Simulación simplificada de balance hídrico para viñedos.
-    </p>
+
+<h1>Gemelo Digital de Riego para Vid - Mendoza</h1>
+
+<p>
+Simulación simplificada del balance hídrico para variedades de vid.
+</p>
+
 </div>
 
 <div class="grid">
@@ -135,44 +144,60 @@ table th{
 <h2>Configuración General</h2>
 
 <label>Variedad</label>
-<select id="variedad" onchange="actualizarKC()">
-    <option value="Malbec">Malbec</option>
-    <option value="Cabernet Sauvignon">Cabernet Sauvignon</option>
-    <option value="Syrah">Syrah</option>
-    <option value="Chardonnay">Chardonnay</option>
+
+<select id="variedad" onchange="actualizarTabla()">
+
+<option value="Malbec">Malbec</option>
+<option value="Cabernet Sauvignon">Cabernet Sauvignon</option>
+<option value="Syrah">Syrah</option>
+<option value="Chardonnay">Chardonnay</option>
+
 </select>
 
-<label>Textura de suelo</label>
+<label>Textura del suelo</label>
+
 <select id="textura">
-    <option value="60">Arenoso</option>
-    <option value="120" selected>Franco</option>
-    <option value="180">Franco Arcilloso</option>
-    <option value="220">Arcilloso</option>
+
+<option value="60">Arenoso</option>
+<option value="120" selected>Franco</option>
+<option value="180">Franco Arcilloso</option>
+<option value="220">Arcilloso</option>
+
 </select>
 
 <label>Profundidad efectiva del suelo (cm)</label>
+
 <input type="number" id="profundidad" value="100">
 
-<label>Eficiencia del riego (%)</label>
+<label>Agua disponible inicial (mm)</label>
+
+<input type="number" id="aguaInicial" value="120">
+
+<label>Eficiencia de riego (%)</label>
+
 <input type="number" id="eficiencia" value="85">
 
-<label>Usar Kc manual</label>
-<select id="modoKC">
-    <option value="default">Kc por defecto</option>
-    <option value="manual">Kc manual</option>
-</select>
+<h3>Tabla de Kc y ET0</h3>
 
-<textarea id="kcManual" rows="3"></textarea>
+<table id="tablaKcEt">
 
-<label>Usar ET0 manual</label>
-<select id="modoET">
-    <option value="default">ET0 por defecto</option>
-    <option value="manual">ET0 manual</option>
-</select>
+<thead>
 
-<textarea id="et0Manual" rows="3">3.2,3.8,4.5,5.1,5.8,6.2,6.0,5.4,4.7,3.9</textarea>
+<tr>
+<th>Mes</th>
+<th>Kc</th>
+<th>ET0 (mm/día)</th>
+</tr>
 
-<button onclick="simular()">Simular</button>
+</thead>
+
+<tbody></tbody>
+
+</table>
+
+<button onclick="simular()">
+Simular Balance Hídrico
+</button>
 
 </div>
 
@@ -182,11 +207,22 @@ table th{
 
 <div id="eventosContainer"></div>
 
-<button onclick="agregarEvento()">Agregar Evento</button>
+<button onclick="agregarEvento()">
+Agregar Evento
+</button>
 
 <div style="margin-top:30px;">
-    <h3>Agua Disponible</h3>
-    <div id="aguaDisponible" style="font-size:28px;color:#1f4e79;font-weight:bold;"></div>
+
+<h3>Capacidad de Agua Disponible</h3>
+
+<div id="aguaDisponible"
+style="
+font-size:28px;
+font-weight:bold;
+color:#1f4e79;
+">
+</div>
+
 </div>
 
 </div>
@@ -195,21 +231,26 @@ table th{
 
 <div class="card">
 
-<h2>Balance Hídrico</h2>
+<h2>Balance Hídrico Mensual</h2>
 
 <canvas id="grafico"></canvas>
 
 <table id="tablaResultados">
 
 <thead>
+
 <tr>
-    <th>Etapa</th>
-    <th>Kc</th>
-    <th>ETc</th>
-    <th>Riego</th>
-    <th>Balance</th>
-    <th>Estado</th>
+
+<th>Mes</th>
+<th>Kc</th>
+<th>ETc</th>
+<th>Riego Neto</th>
+<th>Agua en suelo</th>
+<th>Balance</th>
+<th>Estado</th>
+
 </tr>
+
 </thead>
 
 <tbody></tbody>
@@ -222,17 +263,17 @@ table th{
 
 <script>
 
-const etapas = [
-"Brotación",
-"Desarrollo inicial",
-"Floración",
-"Cuaje",
-"Crecimiento bayas",
-"Envero",
-"Maduración",
-"Cosecha",
-"Postcosecha",
-"Dormancia"
+const meses = [
+"Sept",
+"Oct",
+"Nov",
+"Dic",
+"Ene",
+"Feb",
+"Mar",
+"Abr",
+"May",
+"Jun"
 ];
 
 const kcDefault = {
@@ -247,32 +288,84 @@ const kcDefault = {
 
 };
 
-const et0Default = [3.2,3.8,4.5,5.1,5.8,6.2,6.0,5.4,4.7,3.9];
+const et0Default = [
+3.2,
+3.8,
+4.5,
+5.1,
+5.8,
+6.2,
+6.0,
+5.4,
+4.7,
+3.9
+];
 
 let chart;
 
-function actualizarKC(){
+function actualizarTabla(){
 
-    const variedad = document.getElementById("variedad").value;
+    const variedad =
+        document.getElementById("variedad").value;
 
-    document.getElementById("kcManual").value =
-        kcDefault[variedad].join(",");
+    const kc =
+        kcDefault[variedad];
+
+    const tbody =
+        document.querySelector("#tablaKcEt tbody");
+
+    tbody.innerHTML="";
+
+    for(let i=0;i<10;i++){
+
+        tbody.innerHTML += `
+
+        <tr>
+
+            <td>${meses[i]}</td>
+
+            <td>
+                <input
+                    type="number"
+                    step="0.01"
+                    class="kc"
+                    value="${kc[i]}"
+                >
+            </td>
+
+            <td>
+                <input
+                    type="number"
+                    step="0.1"
+                    class="et0"
+                    value="${et0Default[i]}"
+                >
+            </td>
+
+        </tr>
+
+        `;
+
+    }
 
 }
 
 function agregarEvento(){
 
-    const div = document.createElement("div");
+    const div =
+        document.createElement("div");
 
-    div.className = "evento";
+    div.className="evento";
 
     div.innerHTML = `
 
-    <label>Etapa fenológica</label>
+    <label>Mes</label>
 
-    <select class="etapa">
+    <select class="mes">
 
-        ${etapas.map((e,i)=>`<option value="${i}">${e}</option>`).join("")}
+        ${meses.map((m,i)=>
+            `<option value="${i}">${m}</option>`
+        ).join("")}
 
     </select>
 
@@ -286,77 +379,68 @@ function agregarEvento(){
 
     `;
 
-    document.getElementById("eventosContainer").appendChild(div);
-
-}
-
-function obtenerKC(){
-
-    const variedad = document.getElementById("variedad").value;
-
-    const modo = document.getElementById("modoKC").value;
-
-    if(modo==="default"){
-        return kcDefault[variedad];
-    }
-
-    return document.getElementById("kcManual")
-        .value
-        .split(",")
-        .map(v=>parseFloat(v.trim()));
-
-}
-
-function obtenerET0(){
-
-    const modo = document.getElementById("modoET").value;
-
-    if(modo==="default"){
-        return et0Default;
-    }
-
-    return document.getElementById("et0Manual")
-        .value
-        .split(",")
-        .map(v=>parseFloat(v.trim()));
+    document
+        .getElementById("eventosContainer")
+        .appendChild(div);
 
 }
 
 function simular(){
 
-    const kc = obtenerKC();
-
-    const et0 = obtenerET0();
-
     const eficiencia =
-        parseFloat(document.getElementById("eficiencia").value)/100;
+        parseFloat(
+            document.getElementById("eficiencia").value
+        )/100;
 
     const profundidad =
-        parseFloat(document.getElementById("profundidad").value);
+        parseFloat(
+            document.getElementById("profundidad").value
+        );
 
     const textura =
-        parseFloat(document.getElementById("textura").value);
+        parseFloat(
+            document.getElementById("textura").value
+        );
 
-    const aguaDisponible =
+    let aguaSuelo =
+        parseFloat(
+            document.getElementById("aguaInicial").value
+        );
+
+    const capacidad =
         (textura*profundidad)/100;
 
     document.getElementById("aguaDisponible").innerHTML =
-        aguaDisponible.toFixed(0) + " mm";
+        capacidad.toFixed(0) + " mm";
+
+    const kc =
+        Array.from(document.querySelectorAll(".kc"))
+        .map(v=>parseFloat(v.value));
+
+    const et0 =
+        Array.from(document.querySelectorAll(".et0"))
+        .map(v=>parseFloat(v.value));
+
+    let riegoPorMes =
+        Array(10).fill(0);
 
     const eventos =
         document.querySelectorAll(".evento");
 
-    let riegoPorEtapa = Array(10).fill(0);
-
     eventos.forEach(ev=>{
 
-        const etapa =
-            parseInt(ev.querySelector(".etapa").value);
+        const mes =
+            parseInt(
+                ev.querySelector(".mes").value
+            );
 
         const lamina =
-            parseFloat(ev.querySelector(".lamina").value);
+            parseFloat(
+                ev.querySelector(".lamina").value
+            );
 
-        riegoPorEtapa[etapa]+=lamina*eficiencia;
+        riegoPorMes[mes] +=
+            lamina*eficiencia;
 
     });
 
@@ -369,38 +453,52 @@ function simular(){
 
     for(let i=0;i<10;i++){
 
-        const etc = kc[i]*et0[i]*30;
+        const etc =
+            kc[i]*et0[i]*30;
 
-        const riego = riegoPorEtapa[i];
+        aguaSuelo += riegoPorMes[i];
 
-        const balance = riego - etc;
+        aguaSuelo -= etc;
+
+        if(aguaSuelo>capacidad){
+            aguaSuelo = capacidad;
+        }
+
+        const balance =
+            aguaSuelo - capacidad/2;
 
         balances.push(balance);
 
         let estado="Adecuado";
         let clase="ok";
 
-        if(balance<-20){
+        if(aguaSuelo<capacidad*0.3){
+
             estado="Déficit";
             clase="deficit";
+
         }
 
-        if(balance>20){
+        if(aguaSuelo>capacidad*0.9){
+
             estado="Exceso";
             clase="exceso";
+
         }
 
         tbody.innerHTML += `
 
         <tr class="${clase}">
 
-            <td>${etapas[i]}</td>
+            <td>${meses[i]}</td>
 
             <td>${kc[i].toFixed(2)}</td>
 
             <td>${etc.toFixed(1)}</td>
 
-            <td>${riego.toFixed(1)}</td>
+            <td>${riegoPorMes[i].toFixed(1)}</td>
+
+            <td>${aguaSuelo.toFixed(1)}</td>
 
             <td>${balance.toFixed(1)}</td>
 
@@ -430,24 +528,40 @@ function generarGrafico(data){
         type:'line',
 
         data:{
-            labels:etapas,
+
+            labels:meses,
+
             datasets:[{
-                label:'Balance hídrico (mm)',
+
+                label:'Balance hídrico',
+
                 data:data,
+
                 borderWidth:3,
+
                 fill:false
+
             }]
+
         },
 
         options:{
-            responsive:true
+
+            responsive:true,
+
+            plugins:{
+                legend:{
+                    display:true
+                }
+            }
+
         }
 
     });
 
 }
 
-actualizarKC();
+actualizarTabla();
 
 agregarEvento();
 
