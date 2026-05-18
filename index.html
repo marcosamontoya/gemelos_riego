@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Simulador Digital de Riego - Vid Mendoza</title>
+<title>Simulador de Riego para Vid - Mendoza</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -107,10 +109,6 @@ table th{
     background:#fafafa;
 }
 
-.small{
-    font-size:13px;
-}
-
 @media(max-width:1000px){
 
     .grid{
@@ -129,10 +127,12 @@ table th{
 
 <div class="card">
 
-<h1>Simulador Digital de Riego para Vid - Mendoza</h1>
+<h1>
+Simulador de Riego para Vid - Mendoza
+</h1>
 
 <p>
-Simulación simplificada del balance hídrico para variedades de vid.
+Simulación simplificada del balance hídrico en viñedos.
 </p>
 
 </div>
@@ -143,12 +143,25 @@ Simulación simplificada del balance hídrico para variedades de vid.
 
 <h2>Configuración General</h2>
 
+<label>Temporada de cultivo</label>
+
+<select id="temporada">
+
+<option value="2023-2024">2023-2024</option>
+<option value="2024-2025" selected>2024-2025</option>
+<option value="2025-2026">2025-2026</option>
+<option value="2026-2027">2026-2027</option>
+
+</select>
+
 <label>Variedad</label>
 
 <select id="variedad" onchange="actualizarTabla()">
 
 <option value="Malbec">Malbec</option>
-<option value="Cabernet Sauvignon">Cabernet Sauvignon</option>
+<option value="Cabernet Sauvignon">
+Cabernet Sauvignon
+</option>
 <option value="Syrah">Syrah</option>
 <option value="Chardonnay">Chardonnay</option>
 
@@ -165,17 +178,29 @@ Simulación simplificada del balance hídrico para variedades de vid.
 
 </select>
 
-<label>Profundidad efectiva del suelo (cm)</label>
+<label>
+Profundidad efectiva del suelo (cm)
+</label>
 
-<input type="number" id="profundidad" value="100">
+<input type="number"
+id="profundidad"
+value="100">
 
-<label>Agua disponible inicial (mm)</label>
+<label>
+Agua disponible inicial en Julio (mm)
+</label>
 
-<input type="number" id="aguaInicial" value="120">
+<input type="number"
+id="aguaInicial"
+value="120">
 
-<label>Eficiencia de riego (%)</label>
+<label>
+Eficiencia de riego (%)
+</label>
 
-<input type="number" id="eficiencia" value="85">
+<input type="number"
+id="eficiencia"
+value="85">
 
 <h3>Tabla de Kc y ET0</h3>
 
@@ -184,9 +209,11 @@ Simulación simplificada del balance hídrico para variedades de vid.
 <thead>
 
 <tr>
+
 <th>Mes</th>
 <th>Kc</th>
 <th>ET0 (mm/día)</th>
+
 </tr>
 
 </thead>
@@ -213,7 +240,9 @@ Agregar Evento
 
 <div style="margin-top:30px;">
 
-<h3>Capacidad de Agua Disponible</h3>
+<h3>
+Capacidad de Agua Disponible
+</h3>
 
 <div id="aguaDisponible"
 style="
@@ -231,7 +260,10 @@ color:#1f4e79;
 
 <div class="card">
 
-<h2>Balance Hídrico Mensual</h2>
+<h2>
+Balance Hídrico Mensual -
+<span id="temporadaTitulo"></span>
+</h2>
 
 <canvas id="grafico"></canvas>
 
@@ -245,7 +277,7 @@ color:#1f4e79;
 <th>Kc</th>
 <th>ETc</th>
 <th>Riego Neto</th>
-<th>Agua en suelo</th>
+<th>Agua en Suelo</th>
 <th>Balance</th>
 <th>Estado</th>
 
@@ -264,7 +296,10 @@ color:#1f4e79;
 <script>
 
 const meses = [
-"Sept",
+
+"Jul",
+"Ago",
+"Sep",
 "Oct",
 "Nov",
 "Dic",
@@ -274,21 +309,77 @@ const meses = [
 "Abr",
 "May",
 "Jun"
+
 ];
 
 const kcDefault = {
 
-"Malbec":[0.25,0.35,0.5,0.7,0.85,0.95,0.9,0.8,0.65,0.45],
+"Malbec":[
+0.10,
+0.12,
+0.25,
+0.35,
+0.50,
+0.70,
+0.85,
+0.95,
+0.90,
+0.80,
+0.65,
+0.45
+],
 
-"Cabernet Sauvignon":[0.2,0.3,0.45,0.65,0.8,0.95,0.95,0.85,0.7,0.5],
+"Cabernet Sauvignon":[
+0.10,
+0.12,
+0.20,
+0.30,
+0.45,
+0.65,
+0.80,
+0.95,
+0.95,
+0.85,
+0.70,
+0.50
+],
 
-"Syrah":[0.22,0.32,0.5,0.68,0.82,0.92,0.88,0.78,0.62,0.42],
+"Syrah":[
+0.10,
+0.12,
+0.22,
+0.32,
+0.50,
+0.68,
+0.82,
+0.92,
+0.88,
+0.78,
+0.62,
+0.42
+],
 
-"Chardonnay":[0.24,0.34,0.52,0.72,0.87,0.96,0.9,0.8,0.64,0.44]
+"Chardonnay":[
+0.10,
+0.12,
+0.24,
+0.34,
+0.52,
+0.72,
+0.87,
+0.96,
+0.90,
+0.80,
+0.64,
+0.44
+]
 
 };
 
 const et0Default = [
+
+2.0,
+2.3,
 3.2,
 3.8,
 4.5,
@@ -299,6 +390,7 @@ const et0Default = [
 5.4,
 4.7,
 3.9
+
 ];
 
 let chart;
@@ -314,9 +406,9 @@ function actualizarTabla(){
     const tbody =
         document.querySelector("#tablaKcEt tbody");
 
-    tbody.innerHTML="";
+    tbody.innerHTML = "";
 
-    for(let i=0;i<10;i++){
+    for(let i=0;i<12;i++){
 
         tbody.innerHTML += `
 
@@ -325,21 +417,25 @@ function actualizarTabla(){
             <td>${meses[i]}</td>
 
             <td>
+
                 <input
                     type="number"
                     step="0.01"
                     class="kc"
                     value="${kc[i]}"
                 >
+
             </td>
 
             <td>
+
                 <input
                     type="number"
                     step="0.1"
                     class="et0"
                     value="${et0Default[i]}"
                 >
+
             </td>
 
         </tr>
@@ -352,10 +448,40 @@ function actualizarTabla(){
 
 function agregarEvento(){
 
+    const temporada =
+        document.getElementById("temporada").value;
+
+    const anioInicial =
+        parseInt(
+            temporada.split("-")[0]
+        );
+
+    const anioFinal =
+        parseInt(
+            temporada.split("-")[1]
+        );
+
+    const fechas = [
+
+        `${anioInicial}-07-15`,
+        `${anioInicial}-08-15`,
+        `${anioInicial}-09-15`,
+        `${anioInicial}-10-15`,
+        `${anioInicial}-11-15`,
+        `${anioInicial}-12-15`,
+        `${anioFinal}-01-15`,
+        `${anioFinal}-02-15`,
+        `${anioFinal}-03-15`,
+        `${anioFinal}-04-15`,
+        `${anioFinal}-05-15`,
+        `${anioFinal}-06-15`
+
+    ];
+
     const div =
         document.createElement("div");
 
-    div.className="evento";
+    div.className = "evento";
 
     div.innerHTML = `
 
@@ -364,18 +490,32 @@ function agregarEvento(){
     <select class="mes">
 
         ${meses.map((m,i)=>
-            `<option value="${i}">${m}</option>`
+
+            `<option value="${i}">
+                ${m}
+            </option>`
+
         ).join("")}
 
     </select>
 
     <label>Fecha de riego</label>
 
-    <input type="date" class="fecha">
+    <input
+        type="date"
+        class="fecha"
+        value="${fechas[0]}"
+    >
 
-    <label>Lámina aplicada (mm)</label>
+    <label>
+    Lámina aplicada (mm)
+    </label>
 
-    <input type="number" class="lamina" value="20">
+    <input
+        type="number"
+        class="lamina"
+        value="20"
+    >
 
     `;
 
@@ -387,42 +527,61 @@ function agregarEvento(){
 
 function simular(){
 
+    const temporada =
+        document.getElementById("temporada").value;
+
+    document.getElementById(
+        "temporadaTitulo"
+    ).innerHTML = temporada;
+
     const eficiencia =
         parseFloat(
-            document.getElementById("eficiencia").value
-        )/100;
+            document.getElementById(
+                "eficiencia"
+            ).value
+        ) / 100;
 
     const profundidad =
         parseFloat(
-            document.getElementById("profundidad").value
+            document.getElementById(
+                "profundidad"
+            ).value
         );
 
     const textura =
         parseFloat(
-            document.getElementById("textura").value
+            document.getElementById(
+                "textura"
+            ).value
         );
 
     let aguaSuelo =
         parseFloat(
-            document.getElementById("aguaInicial").value
+            document.getElementById(
+                "aguaInicial"
+            ).value
         );
 
     const capacidad =
-        (textura*profundidad)/100;
+        (textura * profundidad) / 100;
 
-    document.getElementById("aguaDisponible").innerHTML =
+    document.getElementById(
+        "aguaDisponible"
+    ).innerHTML =
         capacidad.toFixed(0) + " mm";
 
     const kc =
-        Array.from(document.querySelectorAll(".kc"))
-        .map(v=>parseFloat(v.value));
+        Array.from(
+            document.querySelectorAll(".kc")
+        ).map(v=>parseFloat(v.value));
 
     const et0 =
-        Array.from(document.querySelectorAll(".et0"))
-        .map(v=>parseFloat(v.value));
+        Array.from(
+            document.querySelectorAll(".et0")
+        ).map(v=>parseFloat(v.value));
 
     let riegoPorMes =
-        Array(10).fill(0);
+        Array(12).fill(0);
 
     const eventos =
         document.querySelectorAll(".evento");
@@ -440,28 +599,39 @@ function simular(){
             );
 
         riegoPorMes[mes] +=
-            lamina*eficiencia;
+            lamina * eficiencia;
 
     });
 
     const tbody =
-        document.querySelector("#tablaResultados tbody");
+        document.querySelector(
+            "#tablaResultados tbody"
+        );
 
-    tbody.innerHTML="";
+    tbody.innerHTML = "";
 
-    let balances=[];
+    let balances = [];
 
-    for(let i=0;i<10;i++){
+    for(let i=0;i<12;i++){
 
         const etc =
-            kc[i]*et0[i]*30;
+            kc[i] * et0[i] * 30;
 
-        aguaSuelo += riegoPorMes[i];
+        aguaSuelo +=
+            riegoPorMes[i];
 
         aguaSuelo -= etc;
 
-        if(aguaSuelo>capacidad){
+        if(aguaSuelo > capacidad){
+
             aguaSuelo = capacidad;
+
+        }
+
+        if(aguaSuelo < 0){
+
+            aguaSuelo = 0;
+
         }
 
         const balance =
@@ -469,20 +639,24 @@ function simular(){
 
         balances.push(balance);
 
-        let estado="Adecuado";
-        let clase="ok";
+        let estado = "Adecuado";
+        let clase = "ok";
 
-        if(aguaSuelo<capacidad*0.3){
+        if(
+            aguaSuelo < capacidad*0.3
+        ){
 
-            estado="Déficit";
-            clase="deficit";
+            estado = "Déficit";
+            clase = "deficit";
 
         }
 
-        if(aguaSuelo>capacidad*0.9){
+        if(
+            aguaSuelo > capacidad*0.9
+        ){
 
-            estado="Exceso";
-            clase="exceso";
+            estado = "Exceso";
+            clase = "exceso";
 
         }
 
@@ -496,11 +670,17 @@ function simular(){
 
             <td>${etc.toFixed(1)}</td>
 
-            <td>${riegoPorMes[i].toFixed(1)}</td>
+            <td>
+                ${riegoPorMes[i].toFixed(1)}
+            </td>
 
-            <td>${aguaSuelo.toFixed(1)}</td>
+            <td>
+                ${aguaSuelo.toFixed(1)}
+            </td>
 
-            <td>${balance.toFixed(1)}</td>
+            <td>
+                ${balance.toFixed(1)}
+            </td>
 
             <td>${estado}</td>
 
@@ -517,10 +697,14 @@ function simular(){
 function generarGrafico(data){
 
     const ctx =
-        document.getElementById("grafico");
+        document.getElementById(
+            "grafico"
+        );
 
     if(chart){
+
         chart.destroy();
+
     }
 
     chart = new Chart(ctx, {
@@ -550,9 +734,11 @@ function generarGrafico(data){
             responsive:true,
 
             plugins:{
+
                 legend:{
                     display:true
                 }
+
             }
 
         }
@@ -570,4 +756,5 @@ simular();
 </script>
 
 </body>
+
 </html>
